@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import web3 from 'web3';
-import lottery from './Lottery';
+import lottery from '../abis/Lottery.json';
 
 class App extends Component {
   async componentWillMount() {
@@ -25,7 +25,6 @@ class App extends Component {
 
     if (typeof accounts[0] !== 'undefined') {
 
-      const web3 = new web3(window.ethereum);
       const netId = await web3.eth.net.getId();
       console.log(netId);
 

@@ -8,9 +8,10 @@
   },
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js",
-    "test": "react-scripts test"
-
+    "start": "react-scripts start",
+    "test": "react-scripts test",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject"
   },
   
   "dependencies": {
@@ -19,7 +20,7 @@
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
-    "@babel/runtime":"^7.7.2",
+    "@babel/runtime": "^7.7.2",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.4",
@@ -40,7 +41,6 @@
     "truffle-hdwallet-provider-privkey": "0.3.0",
     "web3": "1.2.6"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rubyvictor/lottery.git"
@@ -50,5 +50,17 @@
   "bugs": {
     "url": "https://github.com/rubyvictor/lottery/issues"
   },
-  "homepage": "https://github.com/rubyvictor/lottery#readme"
+  "homepage": "https://github.com/rubyvictor/lottery#readme",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
