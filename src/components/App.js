@@ -1,6 +1,6 @@
-const {React, Component} = require('react');
-const web3 = require('web3');
-const lottery = require('./Lottery');
+import React, { Component } from 'react';
+import web3 from 'web3';
+import lottery from './Lottery';
 
 class App extends Component {
   async componentWillMount() {
@@ -142,7 +142,3 @@ class App extends Component {
 }
 
 export default App;
-export function get(arg0, arg1) {
-    throw new Error('Function not implemented.');
-}
-

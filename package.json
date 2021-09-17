@@ -6,13 +6,28 @@
   "directories": {
     "test": "test"
   },
+  "type": "commonjs",
   "scripts": {
-    "start": "index.js",
+    "start": "node index.js",
     "test": "react-scripts test"
 
   },
-
+  
   "dependencies": {
+    "@openzeppelin/contracts": "3.3.0",
+    "@truffle/hdwallet-provider": "1.1.0",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/runtime":"^7.7.2",
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "css-loader": "^2.1.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2",
+    "bootstrap": "4.5.2",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chai-bignumber": "3.0.0",
