@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import web3 from 'web3';
+import lottery from './Lottery';
 
 class App extends Component {
   async componentWillMount() {
@@ -19,17 +20,29 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
+    // Load account
+    const accounts = await web3.eth.getAccounts()
+
     if (typeof accounts[0] !== 'undefined') {
+
+      //Make contract creator the organiser
+      await lottery.methods.lottery().call();
       //Get list of players in this lottery for this contract
       const players = await lottery.methods.getPlayers().call();
+      console.log(players);
 
       //load balance
       const balance = await web3.eth.getBalance(accounts[0]);
+      console.log(balance);
 
+      //get address of organiser for this lottery
+      const organiser = await lottery.methods.getOrganiser().call();
+      console.log(organiser);
       this.setState({
         account: accounts[0],
         players: players,
         balance: balance,
+        organiser: organiser
       });
     } else {
       window.alert('Please login with Metamask');
@@ -44,6 +57,7 @@ class App extends Component {
       balance: 0,
       value: '',
       message: '',
+      organiser: ''
     };
   }
 
@@ -90,7 +104,9 @@ class App extends Component {
       <div>
         <h2>Lottery Blockchain</h2>
         <p>
-          There are currently {this.state.players.length} players in this round.{' '}
+          There are currently {this.state.players.length} players in this lottery.
+          <br></br>
+          Organiser's address: {this.state.organiser}.
           <br></br>
           <br></br>
           Size of Lottery: {web3.utils.fromWei(this.state.balance, 'ether')} ETH
