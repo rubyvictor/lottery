@@ -2,10 +2,6 @@
   "name": "lottery",
   "version": "1.0.0",
   "description": "lottery concept app",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "type": "commonjs",
   "scripts": {
     "start": "react-scripts start",
