@@ -1,8 +1,8 @@
-const { default: Web3 } = require("web3");
+import { default as Web3 } from "web3";
 
 const Lottery = artifacts.require("./contracts/Lottery.sol");
 
-module.exports = async function(callback) {
+export default async function(callback) {
     try {
         // Get Accounts
         const accounts = await Web3.eth.getAccounts()
