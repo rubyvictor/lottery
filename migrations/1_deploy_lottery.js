@@ -1,5 +1,5 @@
 const Lottery = artifacts.require('./Lottery.sol');
 
-module.exports = function (deployer) {
+module.export = function (deployer) {
   deployer.deploy(Lottery);
 };
