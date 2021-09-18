@@ -1,6 +1,6 @@
 const {React, Component} = require('react');
 const web3 = require('web3');
-const lottery = require('./Lottery');
+const lottery = require('./Lottery.sol');
 
 class App extends Component {
   async componentWillMount() {
