@@ -17,6 +17,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "3.3.0",
     "@truffle/hdwallet-provider": "1.1.0",
+    "babel-polyfill": "6.26.0",
+    "babel-register": "6.26.0",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
