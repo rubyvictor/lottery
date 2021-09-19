@@ -20,11 +20,12 @@ class App extends Component {
       console.log(netId);
 
       //Make contract creator the organiser
-      if (this.state.lottery !== 'null') {
+      if (lottery !== 'undefined') {
         try {
           const players = await this.state.lottery.methods.getPlayers().call();
           console.log(players);
 
+          const thisLottery = await this.state.lottery.methods.lottery().call();
           //load balance
           const balance = await web3.eth.getBalance(accounts[0]);
           console.log(balance);
@@ -39,6 +40,7 @@ class App extends Component {
             players: players,
             balance: balance,
             organiser: organiser,
+            lottery: thisLottery
           });
         } catch (error) {
           console.log('Error with lottery', error);
@@ -101,11 +103,15 @@ class App extends Component {
 
     this.setState({ message: 'Waiting for winner to be picked...' });
 
-    //pick winner
-    await lottery.methods.pickWinner().send({
-      from: accounts[0],
-    });
-    this.setState({ message: 'Winner has been drawn!' });
+    try {
+      //pick winner
+      await lottery.methods.pickWinner().send({
+        from: accounts[0],
+      });
+      this.setState({ message: 'Winner has been drawn!' });
+    } catch (error) {
+      console.log('Error on picking winner:', error);
+    }
   };
 
   render() {
