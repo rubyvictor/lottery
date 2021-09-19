@@ -1,41 +1,54 @@
 import React, { Component } from 'react';
-import { default as Web3 } from 'web3';
+import Web3 from 'web3';
 import lottery from '../abis/Lottery.json';
 import './App.css';
 
 class App extends Component {
   async componentDidMount() {
-    await this.loadBlockchainData(this.props.dispatch);
+    await this.loadBlockchainData();
   }
 
   async loadBlockchainData() {
-    // Load account
-    const accounts = await Web3.eth.getAccounts();
+    if (typeof web3 !== 'undefined') {
+      //initialise web3
+      // const web3 = new Web3(Web3.currentProvider); deprecated
+      const web3 = new Web3(Web3.givenProvider);
+      // Load account
+      const accounts = web3.eth.getAccounts(console.log);
 
-    if (typeof accounts[0] !== 'undefined') {
-      const netId = await Web3.eth.net.getId();
+      const netId = await web3.eth.net.getId();
       console.log(netId);
 
       //Make contract creator the organiser
-      await lottery.methods.lottery().call();
-      //Get list of players in this lottery for this contract
-      const players = await lottery.methods.getPlayers().call();
-      console.log(players);
+      if (this.state.lottery !== 'null') {
+        try {
+          const players = await this.state.lottery.methods.getPlayers().call();
+          console.log(players);
 
-      //load balance
-      const balance = await Web3.eth.getBalance(accounts[0]);
-      console.log(balance);
+          //load balance
+          const balance = await web3.eth.getBalance(accounts[0]);
+          console.log(balance);
 
-      //get address of organiser for this lottery
-      const organiser = await lottery.methods.getOrganiser().call();
-      console.log(organiser);
-      this.setState({
-        account: accounts[0],
-        players: players,
-        balance: balance,
-        organiser: organiser,
-      });
+          //get address of organiser for this lottery
+          const organiser = await this.state.lottery.methods
+            .getOrganiser()
+            .call();
+          console.log(organiser);
+          this.setState({
+            account: accounts[0],
+            players: players,
+            balance: balance,
+            organiser: organiser,
+          });
+        } catch (error) {
+          console.log('Error with lottery', error);
+        }
+      }
     } else {
+      const web3 = new Web3(
+        new Web3.providers.HttpProvider('https://localhost:7545')
+      );
+      console.log(web3, 'is not a metamask provider');
       window.alert('Please login with Metamask');
     }
   }
@@ -43,12 +56,14 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      web3: 'undefined',
       account: '',
       players: [],
       balance: '',
       value: '',
       message: '',
       organiser: '',
+      lottery: null,
     };
   }
 
@@ -65,16 +80,19 @@ class App extends Component {
     });
 
     //Enter lottery
-    await lottery.methods.enter().send({
-      from: accounts[0],
-      value: Web3.utils.toWei(this.state.value, 'ether'),
-    });
-
-    this.setState({
-      message: 'You have been entered into the lottery. Good luck!',
-    });
-    //Reset state
-    this.setState(this.state);
+    try {
+      await this.state.lottery.methods.enter().send({
+        from: accounts[0],
+        value: Web3.utils.toWei(this.state.value, 'ether'),
+      });
+      this.setState({
+        message: 'You have been entered into the lottery. Good luck!',
+      });
+      //Reset state
+      this.setState(this.state);
+    } catch (error) {
+      console.log('Error entering lottery', error);
+    }
   };
 
   pickWinner = async () => {
