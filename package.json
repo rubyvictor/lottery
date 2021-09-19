@@ -48,7 +48,7 @@
   "bugs": {
     "url": "https://github.com/rubyvictor/lottery/issues"
   },
-  "homepage": "https://github.com/rubyvictor/lottery#readme",
+  "homepage": ".",
   "browserslist": {
     "production": [
       ">0.2%",

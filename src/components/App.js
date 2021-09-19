@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { default as Web3 } from 'web3';
 import lottery from '../abis/Lottery.json';
+import './App.css';
 
 class App extends Component {
-  async componentWillMount() {
+  async componentDidMount() {
     await this.loadBlockchainData(this.props.dispatch);
   }
 
   async loadBlockchainData() {
     // Load account
-    const accounts = await Web3.eth.getAccounts()
+    const accounts = await Web3.eth.getAccounts();
 
     if (typeof accounts[0] !== 'undefined') {
-
       const netId = await Web3.eth.net.getId();
       console.log(netId);
 
@@ -33,7 +33,7 @@ class App extends Component {
         account: accounts[0],
         players: players,
         balance: balance,
-        organiser: organiser
+        organiser: organiser,
       });
     } else {
       window.alert('Please login with Metamask');
@@ -45,10 +45,10 @@ class App extends Component {
     this.state = {
       account: '',
       players: [],
-      balance: 0,
+      balance: '',
       value: '',
       message: '',
-      organiser: ''
+      organiser: '',
     };
   }
 
@@ -92,37 +92,37 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <h2>Lottery Blockchain</h2>
-        <p>
-          There are currently {this.state.players.length} players in this lottery.
-          <br></br>
-          Organiser's address: {this.state.organiser}.
-          <br></br>
-          <br></br>
-          Size of Lottery: {Web3.utils.fromWei(this.state.balance, 'ether')} ETH
-        </p>
-        <hr />
-        <form onSubmit={this.submitLottery}>
-          <h4>Are you feeling lucky?</h4>
-          <div>
-            <label>Amount of ETH to enter:</label>
-            <input
-              value={this.state.value}
-              onChange={(event) => this.setState({ value: event.target.value })}
-            />
-          </div>
-          <button type="submit">ENTER</button>
-        </form>
-        <br></br>
-        <br></br>
-        <hr />
-        <h4>Ready to pick a winner?</h4>
-        <button onClick={this.pickWinner}>End of lottery!</button>
-        <br></br>
-        <br></br>
-        <hr />
-        <h1>{this.state.message}</h1>
+      <div className="center-screen">
+        <div className="row">
+          <main role="main" className="col-lg-12 d-flex text-center">
+            <div className="content mr-auto ml-auto">
+              <h1>Lottery Blockchain</h1>
+              <h1>
+                There are currently {this.state.players.length} players in this
+                lottery.
+              </h1>
+              <h1>Organiser's address: {this.state.organiser}.</h1>
+              <h2>
+                Size of Lottery:{' '}
+                {Web3.utils.fromWei(this.state.balance, 'ether')} ETH
+              </h2>
+              <form onSubmit={this.submitLottery}>
+                <h4>Are you feeling lucky?</h4>
+                <label>Amount of ETH to enter:</label>
+                <input
+                  value={this.state.value}
+                  onChange={(event) =>
+                    this.setState({ value: event.target.value })
+                  }
+                />
+                <button type="submit">ENTER</button>
+              </form>
+              <h4>Ready to pick a winner?</h4>
+              <button onClick={this.pickWinner}>End of lottery!</button>
+              <h1>{this.state.message}</h1>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }

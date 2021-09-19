@@ -1,4 +1,4 @@
-import { default as Web3 } from "web3";
+// import { default as Web3 } from "web3";
 
 const Lottery = artifacts.require("../src/abis/Lottery.json");
 
