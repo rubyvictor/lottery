@@ -14,7 +14,8 @@ class App extends Component {
       // const web3 = new Web3(Web3.currentProvider); deprecated
       const web3 = new Web3(Web3.givenProvider);
       // Load account
-      const accounts = web3.eth.getAccounts(console.log);
+      const accounts = await web3.eth.getAccounts();
+      console.log(accounts);
 
       const netId = await web3.eth.net.getId();
       console.log(netId);
@@ -22,16 +23,16 @@ class App extends Component {
       //Make contract creator the organiser
       if (lottery !== 'undefined') {
         try {
-          const players = await this.state.lottery.methods.getPlayers().call();
+          const players = await lottery.methods.getPlayers().call();
           console.log(players);
 
-          const thisLottery = await this.state.lottery.methods.lottery().call();
+          const thisLottery = await lottery.methods.lottery().call();
           //load balance
           const balance = await web3.eth.getBalance(accounts[0]);
           console.log(balance);
 
           //get address of organiser for this lottery
-          const organiser = await this.state.lottery.methods
+          const organiser = await lottery.methods
             .getOrganiser()
             .call();
           console.log(organiser);
@@ -65,7 +66,7 @@ class App extends Component {
       value: '',
       message: '',
       organiser: '',
-      lottery: null,
+      lottery: lottery,
     };
   }
 
@@ -83,7 +84,7 @@ class App extends Component {
 
     //Enter lottery
     try {
-      await this.state.lottery.methods.enter().send({
+      await lottery.methods.enter().send({
         from: accounts[0],
         value: Web3.utils.toWei(this.state.value, 'ether'),
       });
