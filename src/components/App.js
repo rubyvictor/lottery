@@ -1,31 +1,19 @@
 import React, { Component } from 'react';
-import web3 from 'web3';
+import { default as Web3 } from 'web3';
 import lottery from '../abis/Lottery.json';
 
 class App extends Component {
   async componentWillMount() {
-    await this.loadWeb3();
     await this.loadBlockchainData(this.props.dispatch);
-  }
-
-  async loadWeb3() {
-    if (window.ethereum) {
-      window.web3 = new web3(window.web3.ethereum);
-      await window.ethereum.enable();
-    } else if (window.web3) {
-      window.web3 = new web3(window.web3.currentProvider);
-    } else {
-      window.alert('Non-Ethereum browser detected. Consider using MetaMask :)');
-    }
   }
 
   async loadBlockchainData() {
     // Load account
-    const accounts = await web3.eth.getAccounts()
+    const accounts = await Web3.eth.getAccounts()
 
     if (typeof accounts[0] !== 'undefined') {
 
-      const netId = await web3.eth.net.getId();
+      const netId = await Web3.eth.net.getId();
       console.log(netId);
 
       //Make contract creator the organiser
@@ -35,7 +23,7 @@ class App extends Component {
       console.log(players);
 
       //load balance
-      const balance = await web3.eth.getBalance(accounts[0]);
+      const balance = await Web3.eth.getBalance(accounts[0]);
       console.log(balance);
 
       //get address of organiser for this lottery
@@ -69,7 +57,7 @@ class App extends Component {
     event.preventDefault();
 
     //get available accounts
-    const accounts = await web3.eth.getAccounts();
+    const accounts = await Web3.eth.getAccounts();
 
     //set message state
     this.setState({
@@ -79,7 +67,7 @@ class App extends Component {
     //Enter lottery
     await lottery.methods.enter().send({
       from: accounts[0],
-      value: web3.utils.toWei(this.state.value, 'ether'),
+      value: Web3.utils.toWei(this.state.value, 'ether'),
     });
 
     this.setState({
@@ -91,7 +79,7 @@ class App extends Component {
 
   pickWinner = async () => {
     //get list of accounts in metamask
-    const accounts = await web3.eth.getAccounts();
+    const accounts = await Web3.eth.getAccounts();
 
     this.setState({ message: 'Waiting for winner to be picked...' });
 
@@ -112,7 +100,7 @@ class App extends Component {
           Organiser's address: {this.state.organiser}.
           <br></br>
           <br></br>
-          Size of Lottery: {web3.utils.fromWei(this.state.balance, 'ether')} ETH
+          Size of Lottery: {Web3.utils.fromWei(this.state.balance, 'ether')} ETH
         </p>
         <hr />
         <form onSubmit={this.submitLottery}>
