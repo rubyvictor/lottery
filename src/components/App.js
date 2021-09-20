@@ -23,25 +23,30 @@ class App extends Component {
       //Make contract creator the organiser
       if (lottery !== 'undefined') {
         try {
-          const players = await lottery.methods.getPlayers().call();
+          const contract = new web3.eth.Contract(
+            lottery.abi,
+            lottery.networks[netId].address
+          );
+          console.log(contract);
+
+          const players = await contract.methods.getPlayers().call();
           console.log(players);
 
-          const thisLottery = await lottery.methods.lottery().call();
+          const thisLottery = await contract.methods.lottery().call();
           //load balance
           const balance = await web3.eth.getBalance(accounts[0]);
           console.log(balance);
 
           //get address of organiser for this lottery
-          const organiser = await lottery.methods
-            .getOrganiser()
-            .call();
+          const organiser = await contract.methods.getOrganiser().call();
           console.log(organiser);
           this.setState({
+            contract: contract,
             account: accounts[0],
             players: players,
             balance: balance,
             organiser: organiser,
-            lottery: thisLottery
+            lottery: thisLottery,
           });
         } catch (error) {
           console.log('Error with lottery', error);
@@ -60,13 +65,14 @@ class App extends Component {
     super(props);
     this.state = {
       web3: 'undefined',
+      contract:null,
       account: '',
       players: [],
       balance: '',
       value: '',
       message: '',
       organiser: '',
-      lottery: lottery,
+      lottery: null,
     };
   }
 
@@ -74,17 +80,23 @@ class App extends Component {
     //prevent default
     event.preventDefault();
 
-    //get available accounts
-    const accounts = await Web3.eth.getAccounts();
-
-    //set message state
-    this.setState({
-      message: 'Submitting your lottery and awaiting confirmation...',
-    });
-
     //Enter lottery
     try {
-      await lottery.methods.enter().send({
+      //get available accounts
+      const web3 = new Web3(Web3.givenProvider);
+      const accounts = await web3.eth.getAccounts();
+      const netId = await web3.eth.net.getId();
+      //get Contract
+      const contract = new web3.eth.Contract(
+        lottery.abi,
+        lottery.networks[netId].address
+      );
+
+      //set message state
+      this.setState({
+        message: 'Submitting your lottery and awaiting confirmation...',
+      });
+      await contract.methods.enter().send({
         from: accounts[0],
         value: Web3.utils.toWei(this.state.value, 'ether'),
       });
@@ -100,13 +112,18 @@ class App extends Component {
 
   pickWinner = async () => {
     //get list of accounts in metamask
-    const accounts = await Web3.eth.getAccounts();
-
+    const web3 = new Web3(Web3.givenProvider);
+    const accounts = await web3.eth.getAccounts();
+    const netId = await web3.eth.net.getId();
+    const contract = new web3.eth.Contract(
+      lottery.abi,
+      lottery.networks[netId].address
+    );
     this.setState({ message: 'Waiting for winner to be picked...' });
 
     try {
       //pick winner
-      await lottery.methods.pickWinner().send({
+      await contract.methods.pickWinner().send({
         from: accounts[0],
       });
       this.setState({ message: 'Winner has been drawn!' });
