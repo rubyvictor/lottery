@@ -10,12 +10,11 @@ contract Lottery {
     }
 
     //add player's address to the lottery pool
-    function enter(uint256 _value) public payable {
-        require(_value > 0.01 ether);
-        require(_value <= msg.sender.balance);
+    function enter() public payable {
+        require(msg.value > 0.01 ether);
+        require(msg.value <= msg.sender.balance);
         
-        uint256 valueToWei = _value * (10**18);
-        msg.sender.transfer(valueToWei);
+        msg.sender.transfer(msg.value);
         players.push(msg.sender);
     }
 
