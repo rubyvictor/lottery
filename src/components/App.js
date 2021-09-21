@@ -9,7 +9,7 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
-    if (typeof web3 !== 'undefined') {
+    if (typeof Web3 !== 'undefined') {
       //initialise web3
       // const web3 = new Web3(Web3.currentProvider); deprecated
       const web3 = new Web3(Web3.givenProvider);
