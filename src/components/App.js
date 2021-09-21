@@ -13,12 +13,13 @@ class App extends Component {
       //initialise web3
       // const web3 = new Web3(Web3.currentProvider); deprecated
       const web3 = new Web3(Web3.givenProvider);
+      console.log("Web3:",web3);
       // Load account
       const accounts = await web3.eth.getAccounts();
-      console.log(accounts);
+      console.log("Accounts:",accounts);
 
       const netId = await web3.eth.net.getId();
-      console.log(netId);
+      console.log("NetId",netId);
 
       //Make contract creator the organiser
       if (lottery !== 'undefined') {
@@ -27,15 +28,15 @@ class App extends Component {
             lottery.abi,
             lottery.networks[netId].address
           );
-          console.log(contract);
+          console.log("Contract:",contract);
 
           const players = await contract.methods.getPlayers().call();
-          console.log(players);
+          console.log("Players:",players);
 
           const thisLottery = await contract.methods.lottery().call();
           //load balance
-          const balance = await web3.eth.getBalance(accounts[0]);
-          console.log(balance);
+          const balance = await web3.eth.getBalance(contract.options.address);
+          console.log("Balance:",balance);
 
           //get address of organiser for this lottery
           const organiser = await contract.methods.getOrganiser().call();
