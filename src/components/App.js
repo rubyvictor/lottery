@@ -4,128 +4,124 @@ import lottery from '../abis/Lottery.json';
 import './App.css';
 
 class App extends Component {
-  async componentDidMount() {
-    await this.loadBlockchainData();
-  }
-
-  async loadBlockchainData() {
-    if (typeof Web3 !== 'undefined') {
-      //initialise web3
-      // const web3 = new Web3(Web3.currentProvider); deprecated
-      const web3 = new Web3(Web3.givenProvider);
-      console.log("Web3:",web3);
-      // Load account
-      const accounts = await web3.eth.getAccounts();
-      console.log("Accounts:",accounts);
-
-      const netId = await web3.eth.net.getId();
-      console.log("NetId",netId);
-
-      //Make contract creator the organiser
-      if (lottery !== 'undefined') {
-        try {
-          const contract = new web3.eth.Contract(
-            lottery.abi,
-            lottery.networks[netId].address
-          );
-          console.log("Contract:",contract);
-
-          const players = await contract.methods.getPlayers().call();
-          console.log("Players:",players);
-
-          const thisLottery = await contract.methods.lottery().call();
-          //load balance
-          const balance = await web3.eth.getBalance(contract.options.address);
-          console.log("Balance:",balance);
-
-          //get address of organiser for this lottery
-          const organiser = await contract.methods.getOrganiser().call();
-          console.log(organiser);
-          this.setState({
-            contract: contract,
-            account: accounts[0],
-            players: players,
-            balance: balance,
-            organiser: organiser,
-            lottery: thisLottery,
-          });
-        } catch (error) {
-          console.log('Error with lottery', error);
-        }
-      }
-    } else {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider('https://localhost:7545')
-      );
-      console.log(web3, 'is not a metamask provider');
-      window.alert('Please login with Metamask');
-    }
-  }
-
   constructor(props) {
     super(props);
     this.state = {
-      web3: 'undefined',
-      contract:null,
-      account: '',
+      web3: null,
+      contract: null,
+      accounts: null,
       players: [],
       balance: '',
-      value: '',
+      lotteryValue: 0,
       message: '',
-      organiser: '',
+      organiser: null,
       lottery: null,
     };
+  }
+
+  async componentDidMount() {
+    try {
+      this.loadWeb3();
+
+      const web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+
+      const accounts = await web3.eth.getAccounts();
+      const netId = await web3.eth.net.getId();
+      const network = lottery.networks[netId];
+      const contract = new web3.eth.Contract(lottery.abi, network.address);
+
+      const players = await contract.methods.getPlayers().call();
+
+      const thisLottery = await contract.methods.lottery().call();
+
+      const balance = await web3.eth.getBalance(accounts[0]);
+
+      //set contract creator address to organiser
+      await contract.methods.lottery();
+      
+
+      this.setState({
+        web3: web3,
+        contract: contract,
+        accounts: accounts,
+        players: players,
+        balance: balance,
+        organiser: accounts,
+        lottery: thisLottery,
+      });
+      console.log(this.state);
+      console.log("account[o] address is:",this.state.balance);
+    } catch (error) {
+      window.alert('Failed to load web3, accounts or contract.');
+      console.log('Component did not load:', error);
+    }
+  }
+
+  async loadWeb3() {
+    window.addEventListener('load', async () => {
+      if (window.ethereum) {
+        //initialise web3
+        const web3 = new Web3(window.ethereum);
+        try {
+          await window.ethereum.enable();
+        } catch (err) {
+          console.log('Could not enable window ethereum', err);
+        }
+        console.log('Ethereum enabled with web3:', web3);
+      } else if (window.web3) {
+        // User metamask provider
+        const web3 = window.web3;
+        console.log('Injected web3 detected:', web3);
+      } else {
+        const provider = new Web3.providers.HttpProvider(
+          'http://127.0.0.1:7545'
+        );
+        const web3 = new Web3(provider);
+        console.log(web3, 'is not a metamask provider');
+        window.alert('Please login with Metamask');
+      }
+    });
   }
 
   submitLottery = async (event) => {
     //prevent default
     event.preventDefault();
 
+    const { accounts, contract, balance } = this.state;
     //Enter lottery
     try {
-      //get available accounts
-      const web3 = new Web3(Web3.givenProvider);
-      const accounts = await web3.eth.getAccounts();
-      const netId = await web3.eth.net.getId();
-      //get Contract
-      const contract = new web3.eth.Contract(
-        lottery.abi,
-        lottery.networks[netId].address
-      );
-
       //set message state
       this.setState({
         message: 'Submitting your lottery and awaiting confirmation...',
       });
+      const gas = 5000000;
       await contract.methods.enter().send({
         from: accounts[0],
-        value: Web3.utils.toWei(this.state.value, 'ether'),
+        value: event.target.value,
+        gas: gas,
       });
+
       this.setState({
         message: 'You have been entered into the lottery. Good luck!',
+        lotteryValue: event.target.value,
+        balance: balance + event.target.value
       });
-      //Reset state
-      this.setState(this.state);
     } catch (error) {
       console.log('Error entering lottery', error);
     }
   };
 
   pickWinner = async () => {
-    //get list of accounts in metamask
-    const web3 = new Web3(Web3.givenProvider);
-    const accounts = await web3.eth.getAccounts();
-    const netId = await web3.eth.net.getId();
-    const contract = new web3.eth.Contract(
-      lottery.abi,
-      lottery.networks[netId].address
-    );
+    const { accounts, contract } = this.state;
+    const gas = 5000000;
     this.setState({ message: 'Waiting for winner to be picked...' });
 
     try {
       //pick winner
       await contract.methods.pickWinner().send({
         from: accounts[0],
+        gas: gas,
       });
       this.setState({ message: 'Winner has been drawn!' });
     } catch (error) {
@@ -147,15 +143,15 @@ class App extends Component {
               <h1>Organiser's address: {this.state.organiser}.</h1>
               <h2>
                 Size of Lottery:{' '}
-                {Web3.utils.fromWei(this.state.balance, 'ether')} ETH
+                {Web3.utils.fromWei(this.state.balance)} ETH
               </h2>
               <form onSubmit={this.submitLottery}>
                 <h4>Are you feeling lucky?</h4>
                 <label>Amount of ETH to enter:</label>
                 <input
-                  value={this.state.value}
+                  value={this.state.lotteryValue}
                   onChange={(event) =>
-                    this.setState({ value: event.target.value })
+                    this.setState({ lotteryValue: Web3.utils.toWei(event.target.value) })
                   }
                 />
                 <button type="submit">ENTER</button>

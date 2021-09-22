@@ -11,10 +11,9 @@ contract Lottery {
 
     //add player's address to the lottery pool
     function enter() public payable {
-        require(msg.value > 0.01 ether);
+        require(msg.value == 0.01 ether);
         require(msg.value <= msg.sender.balance);
         
-        msg.sender.transfer(msg.value);
         players.push(msg.sender);
     }
 
@@ -26,6 +25,11 @@ contract Lottery {
     //get organiser's address in the lottery
     function getOrganiser() public view returns (address) {
         return organiser;
+    }
+
+    //get lottery value
+    function getValue() public view returns (uint) {
+        return address(this).balance;
     }
 
     //Modifier to check that the organiser is the one calling the method to pick winner
