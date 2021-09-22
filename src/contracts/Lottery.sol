@@ -11,7 +11,7 @@ contract Lottery {
 
     //add player's address to the lottery pool
     function enter() public payable {
-        require(msg.value == 0.01 ether);
+        require(msg.value == 1 ether);
         require(msg.value <= msg.sender.balance);
         
         players.push(msg.sender);
@@ -49,7 +49,8 @@ contract Lottery {
 
     function pickWinner() public payable organiserOnly {
         //get random winning index using modulo of number of players
-        uint winnerIndex = randomize() % players.length;
+        //uint winnerIndex = randomize() % players.length;
+        uint winnerIndex = 1;
 
         //transfer lottery pool or contract balance to winning address
         players[winnerIndex].transfer(address(this).balance);

@@ -87,25 +87,25 @@ class App extends Component {
   submitLottery = async (event) => {
     //prevent default
     event.preventDefault();
+    event.persist();
 
-    const { accounts, contract, balance } = this.state;
+    const { accounts, contract, lotteryValue} = this.state;
     //Enter lottery
     try {
       //set message state
       this.setState({
         message: 'Submitting your lottery and awaiting confirmation...',
       });
-      const gas = 5000000;
       await contract.methods.enter().send({
         from: accounts[0],
-        value: event.target.value,
-        gas: gas,
+        value: lotteryValue
       });
 
+      // const response = await contract.methods.getValue().call()
+      //figure out why build json not updated with this new function
+
       this.setState({
-        message: 'You have been entered into the lottery. Good luck!',
-        lotteryValue: event.target.value,
-        balance: balance + event.target.value
+        message: 'You have been entered into the lottery. Good luck!'
       });
     } catch (error) {
       console.log('Error entering lottery', error);
@@ -113,15 +113,15 @@ class App extends Component {
   };
 
   pickWinner = async () => {
-    const { accounts, contract } = this.state;
-    const gas = 5000000;
+    const { accounts, contract, lotteryValue } = this.state;
+  
     this.setState({ message: 'Waiting for winner to be picked...' });
 
     try {
       //pick winner
       await contract.methods.pickWinner().send({
         from: accounts[0],
-        gas: gas,
+        value: 2000000
       });
       this.setState({ message: 'Winner has been drawn!' });
     } catch (error) {
@@ -142,8 +142,12 @@ class App extends Component {
               </h1>
               <h1>Organiser's address: {this.state.organiser}.</h1>
               <h2>
-                Size of Lottery:{' '}
+                Your Balance:{' '}
                 {Web3.utils.fromWei(this.state.balance)} ETH
+              </h2>
+              <h2>
+                Lottery value:{' '}
+                {this.state.lotteryValue} Wei
               </h2>
               <form onSubmit={this.submitLottery}>
                 <h4>Are you feeling lucky?</h4>
