@@ -89,7 +89,7 @@ class App extends Component {
     event.preventDefault();
     event.persist();
 
-    const { accounts, contract, lotteryValue} = this.state;
+    const { accounts, contract} = this.state;
     //Enter lottery
     try {
       //set message state
@@ -98,7 +98,7 @@ class App extends Component {
       });
       await contract.methods.enter().send({
         from: accounts[0],
-        value: lotteryValue
+        value: Web3.utils.toWei('20', 'finney')
       });
 
       // const response = await contract.methods.getValue().call()
@@ -107,13 +107,14 @@ class App extends Component {
       this.setState({
         message: 'You have been entered into the lottery. Good luck!'
       });
+      this.setState(this.state);
     } catch (error) {
       console.log('Error entering lottery', error);
     }
   };
 
   pickWinner = async () => {
-    const { accounts, contract, lotteryValue } = this.state;
+    const { accounts, contract } = this.state;
   
     this.setState({ message: 'Waiting for winner to be picked...' });
 
@@ -121,7 +122,8 @@ class App extends Component {
       //pick winner
       await contract.methods.pickWinner().send({
         from: accounts[0],
-        value: 2000000
+        value: Web3.utils.toWei('20', 'finney'),
+        gas: 50000
       });
       this.setState({ message: 'Winner has been drawn!' });
     } catch (error) {
@@ -147,7 +149,7 @@ class App extends Component {
               </h2>
               <h2>
                 Lottery value:{' '}
-                {this.state.lotteryValue} Wei
+                {this.state.lotteryValue} ETH
               </h2>
               <form onSubmit={this.submitLottery}>
                 <h4>Are you feeling lucky?</h4>
@@ -155,7 +157,7 @@ class App extends Component {
                 <input
                   value={this.state.lotteryValue}
                   onChange={(event) =>
-                    this.setState({ lotteryValue: Web3.utils.toWei(event.target.value) })
+                    this.setState({ lotteryValue: event.target.value })
                   }
                 />
                 <button type="submit">ENTER</button>

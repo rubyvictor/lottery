@@ -3,9 +3,9 @@ pragma solidity ^0.5.0;
 contract Lottery {
     address public organiser;
     address payable [] public players;
+    address public winner;
 
-    //assign lottery organiser to contract creator
-    function lottery() public payable {
+    constructor() {
         organiser = msg.sender;
     }
 
@@ -39,7 +39,7 @@ contract Lottery {
     }
 
     //Method to generate pseudo random number which uses block timestamp
-    function randomize() public view returns(uint) {
+    function randomize() internal public view returns(uint) {
         //use keccak256 hash
         //hash block difficulty + timestamp + player list
         bytes32 hash = keccak256(abi.encodePacked(block.difficulty, now, players));
@@ -47,7 +47,7 @@ contract Lottery {
         return uint(hash);
     }
 
-    function pickWinner() public payable organiserOnly {
+    function pickWinner() public payable organiserOnly returns (address players) {
         //get random winning index using modulo of number of players
         //uint winnerIndex = randomize() % players.length;
         uint winnerIndex = 1;
@@ -56,7 +56,16 @@ contract Lottery {
         players[winnerIndex].transfer(address(this).balance);
 
         //zerolise player list
-        players = new address payable [](0);
+        //players = new address payable [](0);
+
+        winner = players[winnerIndex];
+
+        //return winner address
+        return players[winnerIndex];
+    }
+
+    function getWinner() public view returns (address) {
+        return winner;
     }
 
 }
